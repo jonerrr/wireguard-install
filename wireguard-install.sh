@@ -436,7 +436,7 @@ AllowedIPs = ${CLIENT_WG_IPV4}/32,${CLIENT_WG_IPV6}/128" >>"/etc/wireguard/${SER
 	echo -e "${GREEN}Your client config file is in ${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf${NC}"
 
 	# Display Gluetun environment variables
-	echo -e "${GREEN}\nHere is your client config formatted for Gluetun environment variables:\n${NC}"
+	echo -e "${GREEN}\nGluetun environmental variables for client config:\n${NC}"
 	echo "VPN_SERVICE_PROVIDER: custom"
 	echo "VPN_TYPE: wireguard"
 	echo "VPN_INTERFACE: ${SERVER_WG_NIC}"

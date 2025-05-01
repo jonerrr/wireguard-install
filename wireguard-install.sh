@@ -270,12 +270,20 @@ PostUp = iptables -I FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 PostUp = iptables -t nat -A POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
 PostUp = ip6tables -I FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 PostUp = ip6tables -t nat -A POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
+PostUp = iptables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 33333 -j DNAT --to-destination ${SERVER_WG_IPV4}
+PostUp = iptables -A FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -p tcp --dport 33333 -d ${SERVER_WG_IPV4} -j ACCEPT
+PostUp = iptables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 33333 -j DNAT --to-destination ${SERVER_WG_IPV4}
+PostUp = iptables -A FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -p udp --dport 33333 -d ${SERVER_WG_IPV4} -j ACCEPT
 PostDown = iptables -D INPUT -p udp --dport ${SERVER_PORT} -j ACCEPT
 PostDown = iptables -D FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -j ACCEPT
 PostDown = iptables -D FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 PostDown = iptables -t nat -D POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
 PostDown = ip6tables -D FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
-PostDown = ip6tables -t nat -D POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE" >>"/etc/wireguard/${SERVER_WG_NIC}.conf"
+PostDown = ip6tables -t nat -D POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
+PostDown = iptables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 33333 -j DNAT --to-destination ${SERVER_WG_IPV4}
+PostDown = iptables -D FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -p tcp --dport 33333 -d ${SERVER_WG_IPV4} -j ACCEPT
+PostDown = iptables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 33333 -j DNAT --to-destination ${SERVER_WG_IPV4}
+PostDown = iptables -D FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -p udp --dport 33333 -d ${SERVER_WG_IPV4} -j ACCEPT" >>"/etc/wireguard/${SERVER_WG_NIC}.conf"
 	fi
 
 	# Enable routing on the server
@@ -426,6 +434,19 @@ AllowedIPs = ${CLIENT_WG_IPV4}/32,${CLIENT_WG_IPV6}/128" >>"/etc/wireguard/${SER
 	fi
 
 	echo -e "${GREEN}Your client config file is in ${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf${NC}"
+
+	# Display Gluetun environment variables
+	echo -e "${GREEN}\nHere is your client config formatted for Gluetun environment variables:\n${NC}"
+	echo "VPN_SERVICE_PROVIDER: custom"
+	echo "VPN_TYPE: wireguard"
+	echo "VPN_INTERFACE: ${SERVER_WG_NIC}"
+	echo "WIREGUARD_ENDPOINT_IP: ${SERVER_PUB_IP}"
+	echo "WIREGUARD_ENDPOINT_PORT: ${SERVER_PORT}"
+	echo "WIREGUARD_PUBLIC_KEY: ${SERVER_PUB_KEY}"
+	echo "WIREGUARD_PRIVATE_KEY: ${CLIENT_PRIV_KEY}"
+	echo "WIREGUARD_ADDRESSES: ${CLIENT_WG_IPV4}/32,${CLIENT_WG_IPV6}/128"
+	echo "WIREGUARD_PRESHARED_KEY: ${CLIENT_PRE_SHARED_KEY}"
+	echo "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL: 25s"
 }
 
 function listClients() {

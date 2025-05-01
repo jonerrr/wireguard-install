@@ -2,7 +2,7 @@
 
 ## Changes on this fork
 
-- Sets up TCP and UDP port forwarding on port `33333`
+- Sets up TCP and UDP port forwarding on port `33333` (DOES NOT WORK!!!!)
 - Outputs WireGuard client config for Gluetun environment variables.
 
 ![Lint](https://github.com/angristan/wireguard-install/workflows/Lint/badge.svg)
